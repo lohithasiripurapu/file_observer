@@ -2,11 +2,18 @@ import time
 from argparse import ArgumentParser
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from kafka_producer import send_message
 
 
 class ActivityLogger(FileSystemEventHandler):
     def on_created(self, event):
         print(f'{event.src_path} has been created.')
+        message = {
+            'event_type': 'created',
+            'src_path': event.src_path,
+            'is_directory': event.is_directory
+        }
+        send_message('quickstart-events', message)
 
     def on_deleted(self, event):
         print(f'{event.src_path} has been deleted.')
